@@ -31,10 +31,8 @@ pub fn validate_replacement(re: &Regex, replacement: &str) -> Result<(), String>
             while j < bytes.len() && (bytes[j].is_ascii_alphanumeric() || bytes[j] == b'_') {
                 j += 1;
             }
-            if braced {
-                if j >= bytes.len() || bytes[j] != b'}' {
-                    return Err(format!("unclosed ${{...}} in replacement at byte {i}"));
-                }
+            if braced && (j >= bytes.len() || bytes[j] != b'}') {
+                return Err(format!("unclosed ${{...}} in replacement at byte {i}"));
             }
             if j > start {
                 refs.push(replacement[start..j].to_string());
@@ -291,7 +289,6 @@ mod tests {
     }
 
     #[test]
-    #[test]
     fn replacement_validation() {
         let re = Regex::new(r"(?<year>\d{4})-(?<month>\d{2})").unwrap();
         assert!(validate_replacement(&re, "${year}_${month}").is_ok());
@@ -306,6 +303,7 @@ mod tests {
         assert!(validate_replacement(&plain, "$1").is_err());    // no groups
     }
 
+    #[test]
     fn shell_quote_escapes_single_quotes() {
         assert_eq!(shell_quote(Path::new("it's file.txt")), "'it'\\''s file.txt'");
         assert_eq!(shell_quote(Path::new("plain.txt")), "'plain.txt'");

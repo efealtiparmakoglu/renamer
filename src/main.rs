@@ -121,8 +121,8 @@ fn run(args: &[String]) -> Result<(), ExitCode> {
         for r in &renames {
             println!("{} -> {}", r.from.display(), r.to.display());
         }
-        if errors.is_some() {
-            print_error(&errors.unwrap());
+        if let Some(err) = &errors {
+            print_error(err);
             eprintln!("renamer: dry-run found the problem above; nothing renamed");
             return Err(ExitCode::from(1));
         }
